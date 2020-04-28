@@ -42,7 +42,7 @@ def shear():
         else:
             break
 
-    print(str(graph))
+    graph.plot()
 
 
 def bending():
