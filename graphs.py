@@ -29,7 +29,46 @@ class ShearDiagram():
 
         load_force = float(input("What is the force of the load (kN)? "))
 
-        self.__loads[load_pos] = (load_type, load_force)
+        # Point, most simple
+        if (load_type == 3):
+            self.__loads[load_pos] = (load_type, load_force)
+            return
+
+        # Rectangular, distributes by creating multiple points
+        if (load_type == 2):
+            base = int(input("What is the base length of this rectangular load? "))
+            for i in range(load_pos, load_pos + base):
+                self.__loads[i] = (2, load_force)
+            return
+
+        # Triangular has two cases: right loading and left loading
+        if (load_type == 1):
+            base = int(input("What is the base length of this Triangular load? "))
+            left_right = 0
+            while (left_right != "1" and left_right != "2"):
+                print("Is the larger force on the: ")
+                print("1. Left Side")
+                print("2. Right Side")
+                left_right = input("Enter your selection: ")
+
+            if (left_right == "1"):
+                x_val = 0
+                for i in range(load_pos, load_pos + base):
+                    new_y = -((load_force / base) * x_val) + load_force
+                    print("Left " + str(new_y))
+                    self.__loads[i] = (1, new_y)
+                    x_val += 1
+                return
+
+            else:
+                x_val = 0
+                for i in range(load_pos, load_pos + base):
+                    new_y = (load_force / base) * x_val
+                    print("Right " + str(new_y))
+                    self.__loads[i] = (1, new_y)
+                    x_val += 1
+                return
+
 
     def add_support(self):
         print("Support Types:")
@@ -50,31 +89,43 @@ class ShearDiagram():
 
         self.__supports[support_pos] = (support_type, support_force)
 
-    def plot(self):
+    def plot_shear(self):
         cur_x = 0
         cur_y = 0
         x_vals = []
         y_vals = []
 
         for i in range(0, self.__beam_length):
-            x_vals.append(i)
-            y_vals.append(cur_y)
-
             support = self.__supports[i]
             load = self.__loads[i]
 
-            if (support[0] > -1):
-                cur_y += support[1]
+            if (load[0] != 2 and load[0] != 1):
+                x_vals.append(i)
+                y_vals.append(cur_y)
 
-
-            if (load[0] > -1):
-                cur_y -= load[1]
+            cur_y = self.process_shear_support(support, cur_y)
+            cur_y = self.process_shear_load(load, cur_y)
 
             x_vals.append(i)
             y_vals.append(cur_y)
 
         plt.plot(x_vals, y_vals)
         plt.show()
+
+    def plot_moment(self):
+        print("not written")
+
+    def process_shear_load(self, load, cur_y):
+        if (load[0] > -1):
+            cur_y -= load[1]
+
+        return cur_y
+
+    def process_shear_support(self, support, cur_y):
+        if (support[0] > -1 && support[0] != 4):
+            cur_y += support[1]
+
+        return cur_y
 
 class MomentDiagram():
 
