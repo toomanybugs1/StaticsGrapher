@@ -91,6 +91,8 @@ class ShearDiagram():
 
     # SHEAR GRAPH PLOTTER
     def plot_shear(self):
+        plt.subplot(1, 2, 1)
+
         cur_x = 0
         cur_y = 0
         x_vals = []
@@ -122,7 +124,6 @@ class ShearDiagram():
         y_vals.append(0)
 
         plt.plot(x_vals, y_vals)
-        plt.show()
 
     def process_shear_load(self, load, cur_y):
         if (load[0] > -1):
@@ -138,4 +139,43 @@ class ShearDiagram():
 
     # MOMENT GRAPH PLOTTER
     def plot_moment(self):
-        print("not written")
+        plt.subplot(1, 2, 2)
+
+        cur_x = 0
+        cur_y = 0
+        x_vals = []
+        y_vals = []
+
+        # empty object to keep track of the last force
+        last_force = [-1, 0]
+        was_load = False
+
+        x_vals.append(0)
+        y_vals.append(0)
+
+        for i in range(0, self.__beam_length + 1):
+            support = self.__supports[i]
+            load = self.__loads[i]
+
+            if last_force[0] != -1:
+                if was_load:
+                    cur_y += last_force[1]
+                else:
+                    cur_y += last_force[1]
+
+                x_vals.append(i)
+                y_vals.append(cur_y)
+
+            if support[0] != -1:
+                last_force[0] = support[0]
+                last_force[1] += support[1]
+                was_load = False
+            elif load[0] != -1:
+                last_force[0] = load[0]
+                last_force[1] -= load[1]
+                was_load = True
+
+        plt.plot(x_vals, y_vals)
+
+    def show_plots(self):
+        plt.show()
