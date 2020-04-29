@@ -38,6 +38,7 @@ def shear():
         else:
             break
 
+    graph.calculate_supports()
     graph.plot_shear()
     graph.plot_moment()
     graph.show_plots()

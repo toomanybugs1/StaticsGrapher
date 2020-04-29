@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 class ShearDiagram():
 
@@ -7,6 +8,7 @@ class ShearDiagram():
         # the index of each list represents the point on the beam!
         self.__loads = [] #list of tuples (int, float)
         self.__supports = [] #list of tuples (int, float)
+        self.__entered_supports = 0 # number of specified supports
 
         for i in range(0, beam_length + 1):
             self.__loads.append((-1, -1))
@@ -85,9 +87,54 @@ class ShearDiagram():
         while (support_pos > self.__beam_length or support_pos < 0):
             support_pos = int(input("What is the X position of the support? "))
 
-        support_force = float(input("What is the force of the support (kN)? "))
+        self.__supports[support_pos] = (support_type, 0)
+        self.__entered_supports += 1
 
-        self.__supports[support_pos] = (support_type, support_force)
+    def calculate_supports(self):
+        if self.__entered_supports == 1:
+            support = ()
+            support_position = 0
+            load_totals = 0
+            for i in range(0, self.__beam_length + 1):
+                if (self.__supports[i][0] != -1):
+                    support = self.__supports[i]
+                    support_position = i
+
+                if (self.__loads[i][0] != -1):
+                    load_totals += self.__loads[i][1]
+
+            self.__supports[i] = (support[0], load_totals)
+
+        elif self.__entered_supports == 2:
+            second_support = ()
+            first_support = ()
+            first_support_position = 0
+            second_support_position = 0
+            for i in range(self.__beam_length, 0, -1):
+                if (self.__supports[i][0] != -1):
+                    second_support = self.__supports[i]
+                    second_support_position = i
+                    break
+
+            for i in range(0, self.__beam_length + 1):
+                if (self.__supports[i][0] != -1):
+                    first_support = self.__supports[i]
+                    first_support_position = i
+                    break
+
+            weighted_load_totals = 0
+            load_totals = 0
+            for i in range(0, self.__beam_length + 1):
+                if self.__loads[i][0] != -1:
+                    weighted_load_totals += self.__loads[i][1] * (self.__beam_length - i)
+                    load_totals += self.__loads[i][1]
+
+            first_support_force = weighted_load_totals / (self.__beam_length - first_support_position)
+            second_support_force = load_totals - first_support_force
+
+            self.__supports[first_support_position] = (first_support[0], first_support_force)
+            self.__supports[second_support_position] = (second_support[0], second_support_force)
+
 
     # SHEAR GRAPH PLOTTER
     def plot_shear(self):
