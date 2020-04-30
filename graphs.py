@@ -110,7 +110,7 @@ class ShearDiagram():
             first_support = ()
             first_support_position = 0
             second_support_position = 0
-            for i in range(self.__beam_length, 0, -1):
+            for i in range(self.__beam_length, -1, -1):
                 if (self.__supports[i][0] != -1):
                     second_support = self.__supports[i]
                     second_support_position = i
@@ -126,10 +126,12 @@ class ShearDiagram():
             load_totals = 0
             for i in range(0, self.__beam_length + 1):
                 if self.__loads[i][0] != -1:
-                    weighted_load_totals += self.__loads[i][1] * (self.__beam_length - i)
+                    weighted_load_totals += self.__loads[i][1] * (second_support_position - i)
                     load_totals += self.__loads[i][1]
 
-            first_support_force = weighted_load_totals / (self.__beam_length - first_support_position)
+            print("Weighted Load Totals: " + str(weighted_load_totals))
+            print("Load Totals: " + str(load_totals))
+            first_support_force = weighted_load_totals / (second_support_position - first_support_position)
             second_support_force = load_totals - first_support_force
 
             self.__supports[first_support_position] = (first_support[0], first_support_force)
@@ -144,9 +146,6 @@ class ShearDiagram():
         cur_y = 0
         x_vals = []
         y_vals = []
-
-        x_vals.append(-2)
-        y_vals.append(0)
 
         for i in range(0, self.__beam_length):
             support = self.__supports[i]
@@ -165,11 +164,11 @@ class ShearDiagram():
 
         x_vals.append(self.__beam_length)
         y_vals.append(cur_y)
-        x_vals.append(self.__beam_length)
-        y_vals.append(0)
-        x_vals.append(self.__beam_length + 2)
-        y_vals.append(0)
 
+        print("Supports:")
+        print(self.__supports)
+        print("Loads:")
+        print(self.__loads)
         plt.plot(x_vals, y_vals)
 
     def process_shear_load(self, load, cur_y):
